@@ -1,11 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Velha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Tarefas do Joao</h1>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+
+  <h1 class="text-4xl font-bold mb-4 text-gray-800">Jogo da Velha</h1>
+
+  <!-- Scoreboard -->
+  <div class="mb-6 flex space-x-8 text-2xl font-semibold">
+    <div class="text-blue-600">O: <span id="scoreO">0</span></div>
+    <div class="text-red-600">X: <span id="scoreX">0</span></div>
+  </div>
+
+  <!-- Tabuleiro -->
+  <div class="grid grid-cols-3 gap-2">
+    <!-- Células do jogo -->
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="0"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="1"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="2"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="3"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="4"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="5"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="6"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="7"></div>
+    <div class="cell w-24 h-24 bg-white border-2 border-gray-300 flex items-center justify-center text-5xl font-bold cursor-pointer" data-index="8"></div>
+  </div>
+
+  <!-- Botão para reiniciar -->
+  <button id="resetBtn" class="mt-6 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">Reiniciar Jogo</button>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const scoreXEl = document.getElementById('scoreX');
+    const scoreOEl = document.getElementById('scoreO');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let board = Array(9).fill(null);
+    let currentPlayer = 'X';
+    let score = { X: 0, O: 0 };
+    let gameActive = true;
+
+    const winConditions = [
+      [0,1,2], [3,4,5], [6,7,8], // linhas
+      [0,3,6], [1,4,7], [2,5,8], // colunas
+      [0,4,8], [2,4,6]           // diagonais
+    ];
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (!board[index] && gameActive) {
+        board[index] = currentPlayer;
+        e.target.textContent = currentPlayer;
+        e.target.classList.add(currentPlayer === 'X' ? 'text-red-600' : 'text-blue-600');
+        if (checkWinner()) {
+          score[currentPlayer]++;
+          updateScore();
+          setTimeout(() => {
+            alert(`${currentPlayer} venceu!`);
+            resetBoard();
+          }, 200);
+        } else if (board.every(cell => cell)) {
+          setTimeout(() => {
+            alert("Empate!");
+            resetBoard();
+          }, 200);
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+      }
+    }
+
+    function checkWinner() {
+      return winConditions.some(condition => {
+        const [a, b, c] = condition;
+        return board[a] && board[a] === board[b] && board[a] === board[c];
+      });
+    }
+
+    function updateScore() {
+      scoreXEl.textContent = score.X;
+      scoreOEl.textContent = score.O;
+    }
+
+    function resetBoard() {
+      board = Array(9).fill(null);
+      cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('text-red-600', 'text-blue-600');
+      });
+      currentPlayer = 'X';
+      gameActive = true;
+    }
+
+    cells.forEach(cell => cell.addEventListener('click', handleClick));
+    resetBtn.addEventListener('click', resetBoard);
+  </script>
+
 </body>
 </html>
